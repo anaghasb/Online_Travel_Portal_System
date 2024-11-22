@@ -47,13 +47,10 @@ class Database:
 
     def create_booking(self, booking_type, user_id, price, flight_id=None, accommodation_id=None):
         try:
-            # Ensure the price is a decimal
             price = float(price) if isinstance(price, str) else price
 
-            # Begin transaction
             self.cursor.execute("START TRANSACTION")
         
-            # Check availability first
             if booking_type == 'flight' and flight_id:
                 self.cursor.execute(
                     "SELECT availability FROM flight WHERE flightId = %s FOR UPDATE",
@@ -74,7 +71,6 @@ class Database:
                     self.cursor.execute("ROLLBACK")
                     return False
 
-            # Create the booking
             query = """INSERT INTO booking 
                       (type, userId, price, flightId, accommodationId, status, booking_date) 
                       VALUES (%s, %s, %s, %s, %s, 'Confirmed', NOW())"""
@@ -86,7 +82,6 @@ class Database:
                 accommodation_id if booking_type == 'accommodation' else None
             ))
 
-            # Let the trigger handle availability updates
             pass
 
 
