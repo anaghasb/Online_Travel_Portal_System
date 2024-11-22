@@ -9,10 +9,8 @@ import plotly.graph_objects as go
 from decimal import Decimal
 import logging
 
-# Initialize database
 db = Database()
 
-# Initialize session state variables
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if 'user_id' not in st.session_state:
@@ -100,7 +98,6 @@ def show_booking_history():
         df = pd.DataFrame(bookings)
         df['amount'] = df['price'].apply(format_price)
         
-        # Create an interactive table
         st.dataframe(
             df[['bookingId', 'type', 'amount', 'status', 'booking_date']],
             column_config={
@@ -114,7 +111,6 @@ def show_booking_history():
 def advanced_flight_search():
     st.subheader("Advanced Flight Search")
     
-    # Only show search form if we're in search step
     if st.session_state.booking_step == 'search':
         col1, col2 = st.columns(2)
         with col1:
@@ -136,7 +132,6 @@ def advanced_flight_search():
             else:
                 st.info("No flights found matching your criteria.")
     
-    # Show selection form if we're in select step
     elif st.session_state.booking_step == 'select':
         if 'available_flights' in st.session_state:
             df = pd.DataFrame(st.session_state.available_flights)
@@ -190,7 +185,6 @@ def advanced_flight_search():
 def advanced_accommodation_search():
     st.subheader("Advanced Accommodation Search")
     
-    # Only show search form if we're in search step
     if st.session_state.booking_step == 'search':
         col1, col2 = st.columns(2)
         with col1:
@@ -216,7 +210,6 @@ def advanced_accommodation_search():
             else:
                 st.info("No accommodations found matching your criteria.")
     
-    # Show selection form if we're in select step
     elif st.session_state.booking_step == 'select':
         if 'available_accommodations' in st.session_state:
             df = pd.DataFrame(st.session_state.available_accommodations)
@@ -266,7 +259,6 @@ def customer_page():
             del st.session_state[key]
         st.rerun()
 
-    # If payment is in progress, show only the payment form
     if st.session_state.show_payment:
         show_payment_form()
         return
@@ -290,7 +282,6 @@ def customer_page():
 def show_admin_analytics():
     st.subheader("Revenue Analytics")
     
-    # Get overall stats
     stats = db.get_booking_stats()
     
     # Display metrics
@@ -355,7 +346,6 @@ def admin_page():
     with tab1:
         show_admin_analytics()
 
-        # New section to show user revenue analysis
         st.subheader("User Revenue Analysis")
         user_revenue_data = db.get_admin_user_revenue_analysis()
         if user_revenue_data:
@@ -382,7 +372,6 @@ def admin_page():
                 bookings_df = bookings_df.sort_values('price', ascending=False)
             st.dataframe(bookings_df)
             
-            # Delete booking
             booking_to_delete = st.number_input("Enter Booking ID to delete:", min_value=1)
             if st.button("Delete Booking"):
                 if db.delete_booking(booking_to_delete):
@@ -414,7 +403,6 @@ def show_payment_form():
                 st.success("Payment processed successfully!")
                 st.session_state.payment_success = True
                 
-                # Get and display the payment record
                 payments = db.get_all_payments()
                 latest_payment = next((p for p in payments if p['bookingId'] == st.session_state.current_booking['id']), None)
                 if latest_payment:
